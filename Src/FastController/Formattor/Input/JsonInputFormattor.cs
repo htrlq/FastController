@@ -1,21 +1,12 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
+using Newtonsoft.Json;
 
-namespace FastController
+namespace FastController.Formattor.Input
 {
-    public interface IFormattor
-    {
-        string ContextType { get; }
-        string Serialization(object entity);
-        TEntity Deserialization<TEntity>(HttpListenerContext context) where TEntity : class;
-    }
-
-    public class JsonFormattor : IFormattor
+    public class JsonInputFormattor : IInputFormattor
     {
         public string ContextType => "application/json";
 
@@ -67,9 +58,10 @@ namespace FastController
             return null;
         }
 
-        public string Serialization(object entity)
+        public bool IsConvert(HttpListenerContext context)
         {
-            return JsonConvert.SerializeObject(entity);
+            var request = context.Request;
+            return request.ContentType.Contains(ContextType);
         }
     }
 }
