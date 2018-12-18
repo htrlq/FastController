@@ -1,56 +1,101 @@
-﻿using System.Net;
+﻿using FastController.Unitwork;
+using System.Net;
 
 namespace FastController
 {
     public static class HttpListenerContextExtension
     {
-        public static void Empty(this HttpListenerContext context)
+        public static void Error(this HttpListenerContext context, string error)
         {
-            var response = context.Response;
-            var empty = "response is empty";
-            byte[] emptyBytes = empty.ToBytes();
+            try
+            {
+                var response = context.Response;
+                byte[] errorBytes = error.ToBytes();
 
-            response.OutputStream.Write(emptyBytes, 0, emptyBytes.Length);
-            response.Close();
+                response.StatusCode = 404;
+                response.OutputStream.Write(errorBytes, 0, errorBytes.Length);
+                response.Close();
+            }
+            catch
+            {
+
+            }
         }
 
-        public static void Json(this HttpListenerContext context)
+        public static void Empty(this HttpListenerContext Context)
         {
-            var response = context.Response;
-            response.ContentType = "application/json";
-            response.Close();
+            try
+            {
+                var response = Context.Response;
+                var empty = "response is empty";
+                byte[] emptyBytes = empty.ToBytes();
+
+                response.OutputStream.Write(emptyBytes, 0, emptyBytes.Length);
+                response.Close();
+            }
+            catch
+            {
+
+            }
         }
 
-        public static void Json(this HttpListenerContext context, FastControllerConfiguration configuration, object data)
+        public static void Json(this HttpListenerContext Context)
         {
-            var response = context.Response;
-            var formattor = configuration.Formattor;
-            var json = formattor.Serialization(data);
-            var jsonBytes = json.ToBytes();
+            try
+            {
+                var response = Context.Response;
+                response.ContentType = "application/json";
+                response.Close();
+            }
+            catch
+            {
 
-            response.ContentType = "application/json";
-
-            response.OutputStream.Write(jsonBytes, 0, jsonBytes.Length);
-            response.Close();
+            }
         }
 
-        public static void File(this HttpListenerContext context, string contextType, byte[] fileBytes)
+        public static void Json(this HttpListenerContext Context, object data)
         {
-            var response = context.Response;
+            try
+            {
+                var response = Context.Response;
 
-            response.ContentType = contextType;
-            response.OutputStream.Write(fileBytes, 0, fileBytes.Length);
-            response.Close();
+                var contextType = "application/json";
+
+                var Configuration = AutofacUnitwork.Instance.GetServer<FastControllerConfiguration>();
+
+                foreach (var formattor in Configuration.OutPutFormattors)
+                {
+                    if (formattor.IsConvert(contextType))
+                    {
+                        var json = formattor.Serialization(data);
+                        var jsonBytes = json.ToBytes();
+                        response.ContentType = contextType;
+
+                        response.OutputStream.Write(jsonBytes, 0, jsonBytes.Length);
+                        response.Close();
+                    }
+                }
+            }
+            catch
+            {
+
+            }
         }
 
-        public static void Error(this HttpListenerContext context,string error)
+        public static void File(this HttpListenerContext Context, string contextType, byte[] fileBytes)
         {
-            var response = context.Response;
-            byte[] errorBytes = error.ToBytes();
+            try
+            {
+                var response = Context.Response;
 
-            response.StatusCode = 404;
-            response.OutputStream.Write(errorBytes, 0, errorBytes.Length);
-            response.Close();
+                response.ContentType = contextType;
+                response.OutputStream.Write(fileBytes, 0, fileBytes.Length);
+                response.Close();
+            }
+            catch
+            {
+
+            }
         }
     }
 }

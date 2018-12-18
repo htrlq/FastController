@@ -31,8 +31,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Autofac, Version=3.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.11.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -43,7 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FastController.cs" />
+    <Compile Include="Extension\ContainerBuilderExtension.cs" />
+    <Compile Include="Extension\IContainerExtension.cs" />
+    <Compile Include="FastControllerBase.cs" />
     <Compile Include="FastControllerConfiguration.cs" />
     <Compile Include="FastControllerFactory.cs" />
     <Compile Include="HttpGetParam.cs" />
@@ -52,12 +57,18 @@
     <Compile Include="HttpPostParam.cs" />
     <Compile Include="IFastController.cs" />
     <Compile Include="IFastControllerExtension.cs" />
-    <Compile Include="IFormattor.cs" />
+    <Compile Include="Formattor\Input\IInputFormattor.cs" />
+    <Compile Include="Formattor\Output\IOutPutFormattor.cs" />
+    <Compile Include="Formattor\Input\JsonInputFormattor.cs" />
+    <Compile Include="Formattor\Output\JsonOutputFormattor.cs" />
+    <Compile Include="Formattor\Input\ParamInputFormattor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RouteAttribute.cs" />
+    <Compile Include="Unitwork\AutofacUnitwork.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

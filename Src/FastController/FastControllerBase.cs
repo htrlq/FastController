@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FastController.Unitwork;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
@@ -8,7 +9,6 @@ namespace FastController
 {
     public class FastControllerBase : IFastController
     {
-        private FastControllerConfiguration Configuration { get; set; }
         private ConcurrentDictionary<string, MethodInfo> dictionary = new ConcurrentDictionary<string, MethodInfo>();
 
         public FastControllerBase()
@@ -64,7 +64,7 @@ namespace FastController
         public void Execute(HttpListenerContext context)
         {
             var request = context.Request;
-            var rawUrl = request.RawUrl;
+            var rawUrl = request.RawUrl.Contains("?") ? request.RawUrl.Split("?".ToCharArray())[0] : request.RawUrl;
 
             if (dictionary.ContainsKey(rawUrl))
             {
@@ -80,17 +80,22 @@ namespace FastController
 
                         callback.EndInvoke(beginInvoke);
                     }
-                    else if (typeof(HttpParam).IsAssignableFrom(firstParams.ParameterType) && Configuration.Methods.Any(item=>item.Equals(request.HttpMethod, StringComparison.InvariantCultureIgnoreCase)))
+                    else if (typeof(HttpParam).IsAssignableFrom(firstParams.ParameterType))
                     {
-                        var  paramContext = Activator.CreateInstance(firstParams.ParameterType, new object[]{
-                                context,
-                                Configuration
+                        var Configuration = AutofacUnitwork.Instance.GetServer<FastControllerConfiguration>();
+
+                        if (Configuration.Methods.Any(item => item.Equals(request.HttpMethod, StringComparison.InvariantCultureIgnoreCase)))
+                        {
+
+                            var paramContext = Activator.CreateInstance(firstParams.ParameterType, new object[]{
+                                context
                             }) as HttpParam;
 
-                        var callback = new ExecuteHttpCallback(ExecuteHttpAsync);
-                        var beginInvoke = callback.BeginInvoke(method, paramContext, this, null, null);
+                            var callback = new ExecuteHttpCallback(ExecuteHttpAsync);
+                            var beginInvoke = callback.BeginInvoke(method, paramContext, this, null, null);
 
-                        callback.EndInvoke(beginInvoke);
+                            callback.EndInvoke(beginInvoke);
+                        }
                     }
                     else
                     {
@@ -102,11 +107,6 @@ namespace FastController
                     context.Error(ex.InnerException.Message);
                 }
             }
-        }
-
-        public void SetConfiguration(FastControllerConfiguration configuration)
-        {
-            Configuration = configuration;
         }
     }
 }

@@ -17,18 +17,6 @@ namespace ConsoleApp1
             var value = param.GetValue<FileInfo>();
 
             param.Json(value);
-            //lock(string.Intern(value.FileName))
-            //{
-            //    using (var fileStream = new FileStream(value.FileName, FileMode.Open))
-            //    {
-            //        var length = fileStream.Length;
-            //        var bytes = new byte[length];
-
-            //        fileStream.Read(bytes, 0, bytes.Length);
-
-            //        param.File("image/png", bytes);
-            //    }
-            //}
         }
     }
 

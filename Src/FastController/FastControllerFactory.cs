@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FastController.Unitwork;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
@@ -9,24 +10,22 @@ namespace FastController
     public partial class FastControllerFactory : IFastControllerFactory
     {
         private ConcurrentDictionary<string, IFastController> dictionary = new ConcurrentDictionary<string, IFastController>();
-        private FastControllerConfiguration Configuration = FastControllerConfiguration.Default;
 
-        public void SetConfiguration(FastControllerConfiguration configuration)
+        static FastControllerFactory()
         {
-            Configuration = configuration;
+            AutofacUnitwork.Instance.AddSingleton(FastControllerConfiguration.Default);
+            AutofacUnitwork.Instance.Build();
         }
 
         public bool RegisterInstance<TService>(TService service) where TService : IFastController
         {
             var attribute = service.GetAttribute<RouteAttribute>();
-            service.SetConfiguration(Configuration);
             return dictionary.TryAdd(attribute?.Url ?? "Home", service);
         }
 
         public bool Register<TService>() where TService : IFastController
         {
             var service = Activator.CreateInstance<TService>();
-            service.SetConfiguration(Configuration);
             var attribute = service.GetAttribute<RouteAttribute>();
             return dictionary.TryAdd(attribute?.Url ?? "Home", service);
         }
